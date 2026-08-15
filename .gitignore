@@ -1,0 +1,6 @@
+# build outputs
+*.hex
+*.bin
+*.uf2
+build/
+.qmk/
