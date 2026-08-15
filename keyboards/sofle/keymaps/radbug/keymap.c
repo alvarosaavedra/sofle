@@ -1,8 +1,8 @@
 // Copyright 2026 radbug
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-// Sofle v2 keymap - baseline transcribed from the keyboard's firmware via the
-// VIA protocol (fc32:0287).
+// Sofle v2 keymap - transcribed from the original firmware, adapted for Omarchy:
+// adds Print Screen (Lower+6) and a nav cluster on Raise (Z/X/C/V -> Home/End/PgUp/PgDn).
 // Raw snapshot: docs/firmware-snapshot.json
 
 #include QMK_KEYBOARD_H
@@ -36,7 +36,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /*
  * ,-----------------------------------------.                    ,-----------------------------------------.
- * | MUTE | VOL- | VOL+ | PLAY | PREV | NEXT |                    | TRNS | TRNS | TRNS | TRNS | TRNS | DEL  |
+ * | MUTE | VOL- | VOL+ | PLAY | PREV | NEXT |                    | PSCR  | TRNS | TRNS | TRNS | TRNS | DEL  |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
  * |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                    |  F7  |  F8  |  F9  |  F10 |  F11 | F12  |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
@@ -46,7 +46,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *                   | ---- | TRNS | TRNS |  / TRNS  /     \ TRNS  \ | TRNS | RGUI | ---- |
  *                   `----------------------------'       \       -----------------+--------------------'*/
 [_LOWER] = LAYOUT(
-  KC_MUTE    , KC_VOLD    , KC_VOLU    , KC_MPLY    , KC_MRWD    , KC_MFFD, _______    , _______    , _______    , _______    , _______    , KC_DEL,
+  KC_MUTE    , KC_VOLD    , KC_VOLU    , KC_MPLY    , KC_MRWD    , KC_MFFD, KC_PSCR    , _______    , _______    , _______    , _______    , KC_DEL,
   KC_F1      , KC_F2      , KC_F3      , KC_F4      , KC_F5      , KC_F6, KC_F7      , KC_F8      , KC_F9      , KC_F10     , KC_F11     , KC_F12,
   S(KC_GRV)  , S(KC_BSLS) , S(KC_QUOT) , KC_INT3    , S(KC_4)    , S(KC_5), S(KC_6)    , S(KC_7)    , S(KC_8)    , S(KC_9)    , S(KC_0)    , S(KC_3),
   KC_CAPS    , _______    , _______    , _______    , _______    , _______, _______, _______, S(KC_BSLS) , KC_GRV     , KC_EQL     , S(KC_LBRC) , S(KC_RBRC) , _______,
@@ -59,7 +59,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
  * | ---- | ---- | ---- | ---- | ---- | ---- |                    | ---- | ---- | ---- | ---- | ---- | ---- |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * | TRNS | TRNS | TRNS | TRNS | TRNS | TRNS |-------.  ,---------| LEFT | DOWN |  UP  | RIGHT| ---- | ---- |
+ * | TRNS | HOME | END  | PGUP | PGDN | TRNS |-------.  ,---------| LEFT | DOWN |  UP  | RIGHT| ---- | ---- |
  * `------+ TRNS | TRNS | TRNS | TRNS | TRNS | TRNS  |  | TRNS   |  {   |  +   |  }   |  |   | S(=) |------'
  *        `----------------------------------/       /   \        \-----------------------------------------'
  *                   | ---- | TRNS | TRNS |  / TRNS  /     \ TRNS  \ | TRNS | RGUI | ---- |
@@ -68,7 +68,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_F1      , KC_F2      , KC_F3      , KC_F4      , KC_F5      , KC_F6, KC_F7      , KC_F8      , KC_F9      , KC_F10     , KC_F11     , KC_F12,
   XXXXXXX    , XXXXXXX    , XXXXXXX    , XXXXXXX    , XXXXXXX    , XXXXXXX, XXXXXXX    , XXXXXXX    , XXXXXXX    , XXXXXXX    , XXXXXXX    , XXXXXXX,
   _______    , _______    , _______    , _______    , _______    , _______, KC_LEFT    , KC_DOWN    , KC_UP      , KC_RIGHT   , XXXXXXX    , XXXXXXX,
-  _______    , _______    , _______    , _______    , _______    , _______, _______, _______, S(KC_EQL)  , KC_EQL     , KC_LBRC    , KC_RBRC    , KC_BSLS    , _______,
+  _______    , KC_HOME    , KC_END     , KC_PGUP    , KC_PGDN    , _______, _______, _______, S(KC_EQL)  , KC_EQL     , KC_LBRC    , KC_RBRC    , KC_BSLS    , _______,
   XXXXXXX    , _______    , _______    , _______    , _______, _______    , _______    , _______    , KC_LGUI    , XXXXXXX
 ),
 
