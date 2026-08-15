@@ -1,0 +1,79 @@
+# Sofle keymap repo — agent notes
+
+QMK userspace repo for the owner's Sofle v2 split keyboard, tuned for Omarchy
+(Hyprland). Live at https://github.com/alvarosaavedra/sofle, working tree `~/sofle`.
+
+## Hardware / firmware facts (already established, don't re-derive)
+
+- Sofle v2, Pro Micro (AVR) build, USB `fc32:0287`, product string `JosefAdamcik Sofle`.
+- Runs mainline QMK with **VIA support (VIA protocol v12)** — not Vial. Browser
+  editor is <https://usevia.app>, *not* vial.rocks (its `0xFE` queries are ignored).
+- The VIA raw-HID interface is `/dev/hidraw11` on this machine (of hidraw10-12;
+  10 and 12 time out). Three interfaces: keyboard, consumer control, raw HID.
+- Board layout: `LAYOUT` macro, 60-key + 2 encoders, matrix 10 rows × 6 cols
+  (rows 0-4 left, 5-9 right).
+- Encoder behavior in the stock firmware was hardcoded; this repo replaces it with
+  `encoder_map` in keymap.c (left: volume, right: media).
+
+## Repo layout
+
+- `keyboards/sofle/keymaps/radbug/keymap.c` — the keymap. Layers: `_QWERTY` (0),
+  `_LOWER` (1, left thumb `[{`), `_RAISE` (2, right thumb `}]`), `_ADJUST` (3, unused).
+- `keyboards/sofle/keymaps/radbug/rules.mk` — keeps `VIA_ENABLE = yes` (runtime
+  editing must keep working) and `ENCODER_MAP_ENABLE = yes`.
+- `qmk.json` — userspace build target `["sofle/rev1", "radbug"]`. Required by the
+  current QMK userspace schema (`userspace_version` + `build_targets`).
+- `docs/firmware-snapshot.json` — raw keymap dump of the original firmware (byte
+  offsets = layer*120 + row*12 + col*2, big-endian uint16). This is the rollback
+  reference; never delete it.
+
+## Build / flash
+
+- Toolchain on this machine is complete: `qmk` 1.2.0, `avr-gcc`, `avr-libc`.
+- `~/qmk_firmware` is a **sparse clone** (18M + lib/lufa submodule). If a build
+  complains about missing files: `git -C ~/qmk_firmware sparse-checkout add <dir>`
+  or `git -C ~/qmk_firmware submodule update --init --depth 1 lib/lufa`.
+- Build (run from `~/sofle`): `qmk compile -kb sofle/rev1 -km radbug`
+  → produces `sofle_rev1_radbug.hex` in the repo root (gitignored).
+- Flash: halves are flashed separately over Caterina. Only one half connected at a
+  time; press its reset button when the flasher says "waiting". Command:
+  `qmk flash -kb sofle/rev1 -km radbug -bl caterina`. Flashing needs the user at
+  the keyboard — never attempt it unattended.
+
+## Keymap conventions
+
+- Keycodes use QMK canonical short names (`KC_BSPC`, `KC_LBRC`, `KC_SCLN`,
+  `KC_LSFT`, not the VIA long forms). `KC_JYEN` from the old dump is transcribed
+  as `KC_INT3`.
+- Layer-switch keys: `MO(1)` left thumb, `MO(2)` right thumb — keep them where
+  they are (owner's muscle memory).
+- No homerow mods — owner explicitly declined.
+- Base layer is stock Sofle QWERTY; don't restructure it. Improvements belong on
+  LOWER/RAISE/_ADJUST.
+
+## Omarchy bindings the keymap targets
+
+- Super-heavy: Super+Space (menu), Super+W (close), Super+1-0 (workspaces),
+  Super+arrows (focus/swap) — arrows live on RAISE HJKL, Super on both thumbs.
+- Print = screenshot, Super+Print = color picker, Alt+Print = screenrecord —
+  provided by `KC_PSCR` on LOWER+"6".
+- Omarchy sets `kb_options = compose:caps,shift:both_capslock_cancel` OS-wide, so
+  the LOWER Caps key acts as Compose at the OS level. Don't "fix" this.
+
+## System-side context
+
+- udev rule `/etc/udev/rules.d/99-vial.rules` grants session access to the board's
+  hidraw nodes (`uaccess` + builtin). Needed for usevia.app and any direct
+  protocol access. Don't remove.
+- Direct VIA-protocol access works without the browser: 32-byte HID reports,
+  `0x12` = read keymap buffer (28-byte chunks), `0x05` = set keycode
+  (layer,row,col,code big-endian). Reference client used during transcription:
+  vial-gui's `src/main/python/protocol/keyboard_comm.py`.
+- Runtime edits made through usevia.app are NOT version controlled. If a change
+  is worth keeping, transcribe it into keymap.c and commit.
+
+## Git conventions
+
+- Main branch `main`, remote `origin` (github.com/alvarosaavedra/sofle, public).
+- Commit style: lowercase imperative summary + body explaining why (see `git log`).
+- Never commit `.hex`/`.bin` builds or `.build/` (gitignored).
