@@ -1,0 +1,11 @@
+[Unit]
+Description=Sofle keyboard layer watcher for the Omarchy bar widget
+Documentation=file://%h/sofle/README.md
+
+[Service]
+ExecStart=%h/.local/bin/sofle-layerd
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target
