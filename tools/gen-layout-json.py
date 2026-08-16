@@ -137,7 +137,12 @@ def build(layers):
     for index, layer in enumerate(layers):
         display_rows = []
         for row, (entries, gap, encs) in zip(layer["raw"], ROW_SHAPES):
-            gaps = set(gap) if isinstance(gap, tuple) else ({gap} if gap is not None else set())
+            # ROW_SHAPES gaps are "after index g"; the spacer cell goes in
+            # before key g+1.
+            gaps = set()
+            if gap is not None:
+                for g in (gap if isinstance(gap, tuple) else (gap,)):
+                    gaps.add(g + 1)
             cells = []
             for i, token in enumerate(row):
                 if i in gaps:
