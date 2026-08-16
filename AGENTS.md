@@ -1,7 +1,7 @@
 # Sofle keymap repo — agent notes
 
 QMK userspace repo for the owner's Sofle v2 split keyboard, tuned for Omarchy
-(Hyprland). Live at https://github.com/alvarosaavedra/sofle, working tree `~/sofle`.
+(Hyprland). Live at https://github.com/alvarosaavedra/sofle, working tree `~/Projects/sofle`.
 
 ## Hardware / firmware facts (already established, don't re-derive)
 
@@ -23,6 +23,12 @@ QMK userspace repo for the owner's Sofle v2 split keyboard, tuned for Omarchy
   editing must keep working) and `ENCODER_MAP_ENABLE = yes`.
 - `qmk.json` — userspace build target `["sofle/rev1", "radbug"]`. Required by the
   current QMK userspace schema (`userspace_version` + `build_targets`).
+- `keyboards/sofle/keymaps/radbug/config.h` — split-sync defines
+  (`SPLIT_LAYER_STATE/MODS/WPM/LED_STATE_ENABLE`). Required or the right
+  (slave) half's OLED never sees layer/mods updates.
+- `tools/gen-layout-json.py` — parses keymap.c into the display-ready
+  `~/.local/share/sofle/layers.json` consumed by the bar widget's popup.
+  Re-run after keymap edits and the popup hot-reloads.
 - `docs/firmware-snapshot.json` — raw keymap dump of the original firmware (byte
   offsets = layer*120 + row*12 + col*2, big-endian uint16). This is the rollback
   reference; never delete it.
@@ -33,7 +39,7 @@ QMK userspace repo for the owner's Sofle v2 split keyboard, tuned for Omarchy
 - `~/qmk_firmware` is a **sparse clone** (18M + lib/lufa submodule). If a build
   complains about missing files: `git -C ~/qmk_firmware sparse-checkout add <dir>`
   or `git -C ~/qmk_firmware submodule update --init --depth 1 lib/lufa`.
-- Build (run from `~/sofle`): `qmk compile -kb sofle/rev1 -km radbug`
+- Build (run from `~/Projects/sofle`): `qmk compile -kb sofle/rev1 -km radbug`
   → produces `sofle_rev1_radbug.hex` in the repo root (gitignored).
 - Flash: halves are flashed separately over Caterina. Only one half connected at a
   time; press its reset button when the flasher says "waiting". Command:
@@ -50,6 +56,19 @@ QMK userspace repo for the owner's Sofle v2 split keyboard, tuned for Omarchy
 - No homerow mods — owner explicitly declined.
 - Base layer is stock Sofle QWERTY; don't restructure it. Improvements belong on
   LOWER/RAISE/_ADJUST.
+
+## Omarchy bar widget (live layer indicator)
+
+- `~/.local/bin/sofle-layerd` (systemd user unit `sofle-layer.service`, enabled):
+  finds the board's QMK debug console hidraw by parsing report descriptors
+  (usage page 0xff31, usage 0x74 — the usage_page sysfs files don't exist on
+  this kernel) and mirrors `sofle layer=N` lines to `$XDG_RUNTIME_DIR/sofle-layer`.
+- Bar widget: omarchy shell plugin `~/.config/omarchy/plugins/alvarosaavedra.sofle-layer/`
+  (live indicator + layer-diagram popup). Edits to Panel.qml may be served stale
+  from the QML document cache — `omarchy restart shell` flushes it.
+- Flashing rule from the widget applies: firmware console output only works on
+  the USB-connected half; layer state from the other half arrives over TRRS
+  via split sync.
 
 ## Omarchy bindings the keymap targets
 
