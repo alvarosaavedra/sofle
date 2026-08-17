@@ -19,5 +19,7 @@ MAGIC_ENABLE = no
 # SPLIT_*_ENABLE are not rules.mk options.
 WPM_ENABLE = yes
 
-# Encoder map defined in keymap.c (left: volume, right: media)
+# Encoder map defined in keymap.c (left: volume; right: scroll on QWERTY,
+# media prev/next elsewhere). Mouse keycodes power the scroll.
 ENCODER_MAP_ENABLE = yes
+MOUSEKEY_ENABLE = yes
